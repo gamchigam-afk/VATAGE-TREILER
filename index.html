@@ -2,697 +2,2391 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VANTAGE — Trailer</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>OPERATION BUILDING</title>
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
 html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#000;
+margin:0;
+padding:0;
+width:100%;
+height:100%;
+overflow:hidden;
+background:#111;
+touch-action:none;
+font-family:Arial,sans-serif
 }
-
-body{
-    font-family:"Noto Sans KR",Arial,sans-serif;
-    color:#fff;
+canvas{
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+display:block;
+z-index:0
 }
-
-#trailer{
-    position:relative;
-    width:100%;
-    height:100%;
-    background:#000;
+#ui{
+position:fixed;
+inset:0;
+pointer-events:none;
+color:#fff;
+z-index:10
 }
-
-/* 영화 레터박스 */
-
-.bar{
-    position:absolute;
-    left:0;
-    width:100%;
-    height:8%;
-    background:#000;
-    z-index:50;
-    pointer-events:none;
+#mission{
+position:absolute;
+top:12px;
+left:12px;
+padding:9px 13px;
+background:rgba(0,0,0,.65);
+border-radius:7px;
+font-size:12px;
+line-height:1.5;
+z-index:15
 }
-
-.bar.top{
-    top:0;
+#cross{
+position:absolute;
+left:50%;
+top:50%;
+width:26px;
+height:26px;
+transform:translate(-50%,-50%);
+z-index:15;
+transition:transform .22s ease
 }
-
-.bar.bottom{
-    bottom:0;
+#cross:before,#cross:after{
+content:"";
+position:absolute;
+background:white;
+box-shadow:0 0 4px #000
 }
-
-/* 장면 */
-
-.scene{
-    position:absolute;
-    inset:0;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background:#000;
-
-    opacity:0;
-    visibility:hidden;
-
-    transition:
-        opacity .8s ease;
+#cross:before{
+width:2px;
+height:26px;
+left:12px
 }
-
-.scene.active{
-    opacity:1;
-    visibility:visible;
+#cross:after{
+width:26px;
+height:2px;
+top:12px
 }
-
-/* 대사 */
-
-.dialogue{
-    width:88%;
-
-    text-align:center;
-
-    font-size:clamp(21px,5vw,40px);
-
-    font-weight:400;
-
-    line-height:1.7;
-
-    letter-spacing:2px;
-
-    color:#eee;
-
-    opacity:0;
-
-    transform:translateY(12px);
-
-    transition:
-        opacity .8s ease,
-        transform .8s ease;
-
-    text-shadow:
-        0 2px 20px rgba(255,255,255,.08);
+#hit{
+position:absolute;
+left:50%;
+top:50%;
+width:34px;
+height:34px;
+transform:translate(-50%,-50%);
+opacity:0;
+z-index:16
 }
-
-.scene.active .dialogue{
-    opacity:1;
-    transform:translateY(0);
+#hit i{
+position:absolute;
+width:12px;
+height:3px;
+background:white
 }
-
-/* 로고 */
-
-.logoScene{
-    flex-direction:column;
+#hit i:nth-child(1){left:0;top:8px;transform:rotate(45deg)}
+#hit i:nth-child(2){right:0;top:8px;transform:rotate(-45deg)}
+#hit i:nth-child(3){left:0;bottom:8px;transform:rotate(-45deg)}
+#hit i:nth-child(4){right:0;bottom:8px;transform:rotate(45deg)}
+#ammo{
+position:absolute;
+right:18px;
+bottom:118px;
+font-size:24px;
+font-weight:bold;
+text-shadow:0 2px 5px #000;
+z-index:15
 }
+#state{
+position:absolute;
+right:18px;
+bottom:91px;
+font-size:12px;
+text-shadow:0 2px 5px #000;
+z-index:15
+}
+#hp{
+position:absolute;
+left:18px;
+bottom:18px;
+font-size:20px;
+font-weight:bold;
+text-shadow:0 2px 5px #000;
+z-index:15
+}
+#hpbar{
+position:absolute;
+left:18px;
+bottom:50px;
+width:210px;
+height:10px;
+background:rgba(0,0,0,.65);
+border:1px solid rgba(255,255,255,.3);
+border-radius:5px;
+overflow:hidden;
+z-index:15
+}
+#hpfill{
+width:100%;
+height:100%;
+background:#4caf50;
+transition:width:.15s
+}
+#damage{
+position:absolute;
+inset:0;
+background:rgba(180,0,0,.25);
+opacity:0;
+z-index:14
+}
+#buttons{
+position:absolute;
+right:14px;
+bottom:14px;
+display:flex;
+gap:8px;
+align-items:end;
+z-index:30
+}
+#move{
+position:absolute;
+left:14px;
+bottom:14px;
+width:156px;
+height:156px;
+z-index:30
+}
+button{
+position:relative;
+z-index:31;
+pointer-events:auto;
+width:72px;
+height:54px;
+border:1px solid rgba(255,255,255,.35);
+background:rgba(20,20,20,.82);
+color:#fff;
+border-radius:10px;
+font-size:12px;
+font-weight:bold;
+touch-action:none;
+-webkit-user-select:none;
+user-select:none;
+-webkit-tap-highlight-color:transparent
+}
+button:active{
+background:rgba(110,110,110,.95);
+transform:scale(.96)
+}
+.mv{
+position:absolute;
+width:52px;
+height:52px;
+padding:0
+}
+#up{left:52px;top:0}
+#left{left:0;top:52px}
+#right{right:0;top:52px}
+#down{left:52px;bottom:0}
 
+#menu{
+position:fixed;
+inset:0;
+z-index:100;
+background:linear-gradient(135deg,#101518,#222b30 55%,#101315);
+display:flex;
+align-items:center;
+justify-content:center;
+color:white
+}
+.menuBox{
+width:min(520px,90vw);
+text-align:center
+}
 .logo{
-    font-family:Arial,sans-serif;
-
-    font-size:clamp(55px,14vw,150px);
-
-    font-weight:900;
-
-    letter-spacing:14px;
-
-    opacity:0;
-
-    transform:scale(1.08);
-
-    transition:
-        opacity 1s ease,
-        transform 1.2s ease;
+font-size:38px;
+font-weight:900;
+letter-spacing:4px;
+margin-bottom:7px
 }
-
-.logoScene.active .logo{
-    opacity:1;
-    transform:scale(1);
+.sub{
+font-size:12px;
+color:#999;
+letter-spacing:2px;
+margin-bottom:35px
 }
-
-.logoLine{
-    width:100px;
-    height:1px;
-
-    background:#555;
-
-    margin-top:20px;
-
-    opacity:0;
-
-    transition:
-        opacity .8s ease .4s;
+.menuBtn{
+width:100%;
+height:58px;
+margin:6px 0;
+font-size:15px;
+letter-spacing:1.5px;
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.24)
 }
-
-.logoScene.active .logoLine{
-    opacity:1;
+.screen{
+display:none;
+width:100%;
+height:100%;
+align-items:center;
+justify-content:center
 }
-
-.logoSub{
-    margin-top:16px;
-
-    font-size:10px;
-
-    letter-spacing:6px;
-
-    color:#666;
-
-    opacity:0;
-
-    transition:
-        opacity .8s ease .6s;
+.panel{
+width:min(600px,90vw);
+max-height:88vh;
+overflow:auto;
+background:rgba(10,12,13,.94);
+border:1px solid rgba(255,255,255,.18);
+border-radius:14px;
+padding:24px;
+box-sizing:border-box
 }
-
-.logoScene.active .logoSub{
-    opacity:1;
+.panel h2{
+margin:0 0 20px;
+letter-spacing:2px
 }
-
-/* 암막 */
-
-#blackout{
-    position:absolute;
-    inset:0;
-
-    background:#000;
-
-    z-index:100;
-
-    opacity:1;
-
-    pointer-events:none;
-
-    transition:
-        opacity .7s ease;
+.chapter{
+width:100%;
+height:74px;
+margin:8px 0;
+text-align:left;
+padding:0 18px;
+box-sizing:border-box;
+display:flex;
+flex-direction:column;
+justify-content:center;
+gap:4px;
+font-size:14px
 }
-
-/* 시작 */
-
-#start{
-    position:absolute;
-    inset:0;
-
-    z-index:200;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background:#000;
-
-    cursor:pointer;
-
-    transition:
-        opacity 1s ease;
+.chapter span{
+font-size:11px;
+color:#aaa
 }
-
-.startText{
-    font-size:13px;
-
-    letter-spacing:6px;
-
-    color:#fff;
-
-    opacity:.65;
-
-    animation:pulse 2s infinite;
+.locked{
+opacity:.32
 }
-
-@keyframes pulse{
-
-    0%,100%{
-        opacity:.25;
-    }
-
-    50%{
-        opacity:.85;
-    }
+.back{
+margin-top:14px;
+width:100%;
+height:48px
 }
-
-/* 마지막 */
-
-#ending{
-    position:absolute;
-    inset:0;
-
-    z-index:120;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-
-    background:#000;
-
-    opacity:0;
-    pointer-events:none;
-
-    transition:
-        opacity 1.5s ease;
+.achievement{
+display:flex;
+align-items:center;
+gap:15px;
+padding:14px 8px;
+border-bottom:1px solid rgba(255,255,255,.1);
+text-align:left
 }
-
-#ending.show{
-    opacity:1;
+.achIcon{
+font-size:27px;
+width:42px;
+text-align:center
 }
-
-.endLogo{
-    font-family:Arial,sans-serif;
-
-    font-size:clamp(55px,14vw,150px);
-
-    font-weight:900;
-
-    letter-spacing:14px;
+.achName{
+font-weight:bold
 }
-
-.endText{
-    margin-top:20px;
-
-    font-size:10px;
-
-    letter-spacing:7px;
-
-    color:#555;
+.achDesc{
+font-size:11px;
+color:#999;
+margin-top:4px
+}
+.achLocked{
+opacity:.35
+}
+.shopBox{
+padding:25px 15px;
+border:1px solid rgba(255,255,255,.12);
+border-radius:10px;
+margin-bottom:15px
+}
+.shopIcon{
+font-size:45px;
+margin-bottom:12px
+}
+.shopSoon{
+font-size:20px;
+font-weight:bold;
+margin-bottom:8px
+}
+.shopDesc{
+font-size:12px;
+color:#999
+}
+.money{
+font-size:14px;
+color:#e7c95a;
+margin-bottom:17px
+}
+#toast{
+position:fixed;
+top:70px;
+left:50%;
+transform:translateX(-50%) translateY(-20px);
+z-index:120;
+background:rgba(15,15,15,.94);
+border:1px solid rgba(255,255,255,.25);
+border-radius:10px;
+padding:12px 20px;
+opacity:0;
+pointer-events:none;
+transition:.25s;
+text-align:center
+}
+#toast.show{
+opacity:1;
+transform:translateX(-50%) translateY(0)
+}
+#result{
+position:fixed;
+inset:0;
+z-index:95;
+background:rgba(0,0,0,.82);
+display:none;
+align-items:center;
+justify-content:center;
+color:white;
+text-align:center
+}
+.resultBox{
+background:#151a1c;
+border:1px solid rgba(255,255,255,.2);
+border-radius:15px;
+padding:28px;
+width:min(390px,84vw)
+}
+.resultBox h2{
+font-size:26px;
+margin:0 0 8px
+}
+.resultLine{
+display:flex;
+justify-content:space-between;
+padding:9px 0;
+border-bottom:1px solid rgba(255,255,255,.1);
+font-size:14px
+}
+.resultTotal{
+font-size:20px;
+font-weight:bold;
+margin:20px 0
+}
+#gameover{
+position:fixed;
+inset:0;
+z-index:90;
+background:rgba(0,0,0,.8);
+display:none;
+align-items:center;
+justify-content:center;
+color:white;
+text-align:center
+}
+.gameoverBox{
+background:#15191b;
+padding:30px;
+border-radius:14px;
+width:min(360px,80vw)
+}
+.gameoverBox h2{
+margin-top:0
 }
 </style>
 </head>
-
 <body>
 
-<div id="trailer">
+<div id="menu">
+<div class="menuBox">
 
-    <!-- 1 -->
-    <div class="scene" id="scene1">
-        <div class="dialogue">
-            반드시 날 구하러 올 거야..
-        </div>
-    </div>
+<div id="mainScreen" class="screen" style="display:flex">
+<div style="width:100%">
+<div class="logo">OPERATION</div>
+<div class="logo" style="font-size:30px">BUILDING</div>
+<div class="sub">TACTICAL OPERATION SIMULATION</div>
+<div class="money" id="menuMoney">₩ 0</div>
+<button class="menuBtn" id="startBtn">GAME START</button>
+<button class="menuBtn" id="achievementBtn">ACHIEVEMENTS</button>
+<button class="menuBtn" id="shopBtn">총포상</button>
+</div>
+</div>
 
-    <!-- 2 -->
-    <div class="scene" id="scene2">
-        <div class="dialogue">
-            내가 가겠소.
-        </div>
-    </div>
+<div id="chapterScreen" class="screen">
+<div class="panel">
+<h2>SELECT CHAPTER</h2>
+<div class="money" id="chapterMoney">₩ 0</div>
+<button class="chapter menuBtn" id="chapter1">
+CHAPTER 1 — OPERATION BUILDING
+<span>건물 내부 작전구역</span>
+</button>
+<button class="chapter menuBtn" id="chapter2">
+CHAPTER 2 — NIGHT SHIFT
+<span id="chapter2Status">잠금 상태</span>
+</button>
+<button class="chapter menuBtn locked">
+CHAPTER 3 — LOCKED
+<span>추후 업데이트</span>
+</button>
+<button class="back" id="chapterBack">BACK</button>
+</div>
+</div>
 
-    <!-- 3 -->
-    <div class="scene logoScene" id="scene3">
+<div id="achievementScreen" class="screen">
+<div class="panel">
+<h2>ACHIEVEMENTS</h2>
+<div id="achievementList"></div>
+<button class="back" id="achievementBack">BACK</button>
+</div>
+</div>
 
-        <div class="logo">
-            VANTAGE
-        </div>
+<div id="shopScreen" class="screen">
+<div class="panel">
+<h2>총포상</h2>
+<div class="shopBox">
+<div class="shopIcon">🔫</div>
+<div class="shopSoon">조만간 업데이트됩니다.</div>
+<div class="shopDesc">새로운 무기와 장비가 준비 중입니다.</div>
+</div>
+<button class="back" id="shopBack">BACK</button>
+</div>
+</div>
 
-        <div class="logoLine"></div>
+</div>
+</div>
 
-        <div class="logoSub">
-            A NEW GENERATION OF FPS
-        </div>
+<div id="toast"></div>
 
-    </div>
+<div id="result">
+<div class="resultBox">
+<h2>MISSION COMPLETE</h2>
+<p id="resultChapter">CHAPTER 1 완료</p>
+<div class="resultLine">
+<span>일반 적 처치</span>
+<span id="normalResult">0 × ₩100</span>
+</div>
+<div class="resultLine">
+<span>방탄병 처치</span>
+<span id="armorResult">0 × ₩300</span>
+</div>
+<div class="resultLine">
+<span>이번 작전 수익</span>
+<span id="earnedResult">₩0</span>
+</div>
+<div class="resultTotal">
+현재 보유금 <span id="totalResult">₩0</span>
+</div>
+<button class="menuBtn" id="resultMenu">MENU로 돌아가기</button>
+</div>
+</div>
 
-    <!-- 4 -->
-    <div class="scene" id="scene4">
-        <div class="dialogue">
-            우리는 반드시 돌아갈 수 있을 거라 믿었었소..
-        </div>
-    </div>
+<div id="gameover">
+<div class="gameoverBox">
+<h2>MISSION FAILED</h2>
+<p>작전 실패</p>
+<button class="menuBtn" id="returnMenu">MENU로 돌아가기</button>
+</div>
+</div>
 
-    <!-- 5 -->
-    <div class="scene" id="scene5">
-        <div class="dialogue">
-            미안해요..
-        </div>
-    </div>
+<div id="ui">
+<div id="mission">CHAPTER 1<br>OPERATION BUILDING</div>
+<div id="cross"></div>
+<div id="hit"><i></i><i></i><i></i><i></i></div>
+<div id="damage"></div>
+<div id="ammo">30 / 180</div>
+<div id="state">AIM OFF</div>
+<div id="hpbar"><div id="hpfill"></div></div>
+<div id="hp">HP 100</div>
 
-    <!-- 6 -->
-    <div class="scene" id="scene6">
-        <div class="dialogue">
-            그 약속..
-        </div>
-    </div>
+<div id="move">
+<button class="mv" id="up">▲</button>
+<button class="mv" id="left">◀</button>
+<button class="mv" id="right">▶</button>
+<button class="mv" id="down">▼</button>
+</div>
 
-    <!-- 7 -->
-    <div class="scene" id="scene7">
-        <div class="dialogue">
-            지키지 못할 것 같소..
-        </div>
-    </div>
-
-    <!-- 8 -->
-    <div class="scene" id="scene8">
-        <div class="dialogue">
-            그래도 한 가지는 약속하겠소.
-        </div>
-    </div>
-
-    <!-- 9 -->
-    <div class="scene" id="scene9">
-        <div class="dialogue">
-            절대로 당신을 잊지 않겠소.
-        </div>
-    </div>
-
-    <!-- 10 -->
-    <div class="scene" id="scene10">
-        <div class="dialogue">
-            내가 죽으면..
-        </div>
-    </div>
-
-    <!-- 11 -->
-    <div class="scene" id="scene11">
-        <div class="dialogue">
-            날 위해 울어주시오..
-        </div>
-    </div>
-
-    <!-- 12 -->
-    <div class="scene" id="scene12">
-        <div class="dialogue">
-            그리고 살아남으시오.
-        </div>
-    </div>
-
-    <!-- 13 -->
-    <div class="scene" id="scene13">
-        <div class="dialogue">
-            그것만이 내가 바라는 전부요.
-        </div>
-    </div>
-
-    <!-- 14 -->
-    <div class="scene" id="scene14">
-        <div class="dialogue">
-            다시 만날 그날까지..
-        </div>
-    </div>
-
-    <!-- 15 -->
-    <div class="scene" id="scene15">
-        <div class="dialogue">
-            부디.. 행복하시오.
-        </div>
-    </div>
-
-    <!-- 암막 -->
-    <div id="blackout"></div>
-
-    <!-- 레터박스 -->
-    <div class="bar top"></div>
-    <div class="bar bottom"></div>
-
-    <!-- 시작 -->
-    <div id="start">
-        <div class="startText">
-            TAP TO BEGIN
-        </div>
-    </div>
-
-    <!-- 엔딩 -->
-    <div id="ending">
-
-        <div class="endLogo">
-            VANTAGE
-        </div>
-
-        <div class="endText">
-            COMING SOON
-        </div>
-
-    </div>
-
+<div id="buttons">
+<button id="jump">JUMP</button>
+<button id="aim">AIM</button>
+<button id="reload">RELOAD</button>
+<button id="fire">FIRE</button>
+</div>
 </div>
 
 <script>
+const three=document.createElement("script");
+three.src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
+three.onload=setupMenu;
+three.onerror=()=>{
+document.body.innerHTML="<div style='color:white;padding:30px;font-size:20px'>Three.js를 불러오지 못했습니다.</div>";
+};
+document.head.appendChild(three);
 
-const scenes = [
-
-    {
-        id:"scene1",
-        time:1800
-    },
-
-    {
-        id:"scene2",
-        time:1800
-    },
-
-    {
-        id:"scene3",
-        time:3000
-    },
-
-    {
-        id:"scene4",
-        time:2000
-    },
-
-    {
-        id:"scene5",
-        time:1600
-    },
-
-    {
-        id:"scene6",
-        time:1600
-    },
-
-    {
-        id:"scene7",
-        time:2000
-    },
-
-    {
-        id:"scene8",
-        time:1800
-    },
-
-    {
-        id:"scene9",
-        time:2000
-    },
-
-    {
-        id:"scene10",
-        time:1700
-    },
-
-    {
-        id:"scene11",
-        time:2300
-    },
-
-    {
-        id:"scene12",
-        time:1800
-    },
-
-    {
-        id:"scene13",
-        time:1900
-    },
-
-    {
-        id:"scene14",
-        time:2000
-    },
-
-    {
-        id:"scene15",
-        time:2800
-    }
-
+const achievements=[
+{id:"firstshot",name:"첫 발",desc:"처음으로 총을 발사하시오",icon:"🔫"},
+{id:"firsthit",name:"첫 명중",desc:"적에게 처음으로 명중시키시오",icon:"🎯"},
+{id:"reload",name:"다시 장전",desc:"탄창을 한 번 재장전하시오",icon:"🔄"},
+{id:"fivekills",name:"정리 시작",desc:"적 5명을 처치하시오",icon:"☑️"},
+{id:"lastbullet",name:"아직 한 발 남았다",desc:"탄창에 남은 마지막 한 발로 적을 처치하시오",icon:"💥"},
+{id:"armorkill",name:"방탄을 뚫다",desc:"방탄복을 입은 적을 처치하시오",icon:"🪖"},
+{id:"perfect",name:"완벽한 작전",desc:"HP 100을 유지한 채 챕터를 완료하시오",icon:"⭐"},
+{id:"chapter1",name:"작전 완료",desc:"CHAPTER 1을 완료하시오",icon:"🏆"},
+{id:"chapter2",name:"두 번째 작전",desc:"CHAPTER 2를 완료하시오",icon:"🏅"}
 ];
 
-let current = -1;
-let playing = false;
-
-const blackout =
-    document.getElementById("blackout");
-
-const start =
-    document.getElementById("start");
-
-const ending =
-    document.getElementById("ending");
-
-
-/* 암막 */
-
-function fadeBlack(){
-
-    blackout.style.opacity = "1";
-
+function getData(){
+try{
+return JSON.parse(localStorage.getItem("operationData")||'{"money":0,"chapter2":false,"achievements":{}}');
+}catch(e){
+return {money:0,chapter2:false,achievements:{}};
+}
 }
 
-
-/* 암막 해제 */
-
-function fadeOpen(){
-
-    blackout.style.opacity = "0";
-
+function saveData(data){
+try{
+localStorage.setItem("operationData",JSON.stringify(data));
+}catch(e){}
 }
 
+function unlock(id){
+const data=getData();
 
-/* 장면 표시 */
+if(data.achievements[id])return;
 
-function showScene(index){
+data.achievements[id]=true;
+saveData(data);
 
-    document
-        .querySelectorAll(".scene")
-        .forEach(scene => {
+const a=achievements.find(x=>x.id===id);
 
-            scene.classList.remove("active");
-
-        });
-
-    const target =
-        document.getElementById(
-            scenes[index].id
-        );
-
-    target.classList.add("active");
+if(a){
+showToast("🏆 업적 달성<br><b>"+a.name+"</b>");
 }
 
-
-/* 다음 장면 */
-
-function nextScene(){
-
-    current++;
-
-    if(current >= scenes.length){
-
-        finishTrailer();
-
-        return;
-    }
-
-    /* 먼저 암막 */
-
-    fadeBlack();
-
-    setTimeout(() => {
-
-        /* 다음 장면 */
-
-        showScene(current);
-
-        /* 천천히 밝아짐 */
-
-        setTimeout(() => {
-
-            fadeOpen();
-
-        },150);
-
-        /* 장면 유지 */
-
-        setTimeout(() => {
-
-            nextScene();
-
-        },scenes[current].time);
-
-    },700);
+renderAchievements();
 }
 
+function renderAchievements(){
+const list=document.getElementById("achievementList");
+const data=getData();
 
-/* 시작 */
+list.innerHTML="";
 
-function startTrailer(){
+for(const a of achievements){
+const done=!!data.achievements[a.id];
 
-    if(playing) return;
+const div=document.createElement("div");
 
-    playing = true;
+div.className="achievement"+(done?"":" achLocked");
 
-    start.style.opacity = "0";
+div.innerHTML=
+"<div class='achIcon'>"+(done?a.icon:"🔒")+"</div>"+
+"<div><div class='achName'>"+a.name+"</div>"+
+"<div class='achDesc'>"+a.desc+"</div></div>";
 
-    setTimeout(() => {
-
-        start.style.display = "none";
-
-    },1000);
-
-    setTimeout(() => {
-
-        nextScene();
-
-    },700);
+list.appendChild(div);
+}
 }
 
+function updateMenuData(){
+const data=getData();
 
-/* 종료 */
+document.getElementById("menuMoney").textContent="₩ "+data.money;
+document.getElementById("chapterMoney").textContent="₩ "+data.money;
 
-function finishTrailer(){
+const c2=document.getElementById("chapter2");
+const status=document.getElementById("chapter2Status");
 
-    fadeBlack();
-
-    setTimeout(() => {
-
-        document
-            .querySelectorAll(".scene")
-            .forEach(scene => {
-
-                scene.classList.remove("active");
-
-            });
-
-        ending.classList.add("show");
-
-        setTimeout(() => {
-
-            fadeOpen();
-
-        },500);
-
-    },800);
+if(data.chapter2){
+c2.classList.remove("locked");
+status.textContent="해금됨";
+}else{
+c2.classList.add("locked");
+status.textContent="CHAPTER 1 클리어 시 해금";
+}
 }
 
+let toastTimer;
 
-/* 클릭 */
+function showToast(text){
+const t=document.getElementById("toast");
 
-start.addEventListener(
-    "click",
-    startTrailer
+t.innerHTML=text;
+t.classList.add("show");
+
+clearTimeout(toastTimer);
+
+toastTimer=setTimeout(()=>{
+t.classList.remove("show");
+},2200);
+}
+
+function setupMenu(){
+renderAchievements();
+updateMenuData();
+
+document.getElementById("startBtn").onclick=()=>{
+document.getElementById("mainScreen").style.display="none";
+document.getElementById("chapterScreen").style.display="flex";
+updateMenuData();
+};
+
+document.getElementById("achievementBtn").onclick=()=>{
+document.getElementById("mainScreen").style.display="none";
+document.getElementById("achievementScreen").style.display="flex";
+renderAchievements();
+};
+
+document.getElementById("shopBtn").onclick=()=>{
+document.getElementById("mainScreen").style.display="none";
+document.getElementById("shopScreen").style.display="flex";
+};
+
+document.getElementById("chapterBack").onclick=()=>{
+document.getElementById("chapterScreen").style.display="none";
+document.getElementById("mainScreen").style.display="flex";
+updateMenuData();
+};
+
+document.getElementById("achievementBack").onclick=()=>{
+document.getElementById("achievementScreen").style.display="none";
+document.getElementById("mainScreen").style.display="flex";
+};
+
+document.getElementById("shopBack").onclick=()=>{
+document.getElementById("shopScreen").style.display="none";
+document.getElementById("mainScreen").style.display="flex";
+};
+
+document.getElementById("chapter1").onclick=()=>{
+document.getElementById("menu").style.display="none";
+startGame(1);
+};
+
+document.getElementById("chapter2").onclick=()=>{
+const data=getData();
+
+if(!data.chapter2){
+showToast("🔒 CHAPTER 2가 잠겨 있습니다.");
+return;
+}
+
+document.getElementById("menu").style.display="none";
+startGame(2);
+};
+
+document.getElementById("returnMenu").onclick=()=>{
+location.reload();
+};
+
+document.getElementById("resultMenu").onclick=()=>{
+location.reload();
+};
+}
+
+function startGame(chapter){
+
+const scene=new THREE.Scene();
+
+if(chapter===1){
+scene.background=new THREE.Color(0x202427);
+scene.fog=new THREE.Fog(0x202427,25,70);
+}else{
+scene.background=new THREE.Color(0x11171b);
+scene.fog=new THREE.Fog(0x11171b,20,58);
+}
+
+const camera=new THREE.PerspectiveCamera(
+chapter===1?70:67,
+innerWidth/innerHeight,
+.05,
+100
 );
 
+const renderer=new THREE.WebGLRenderer({
+antialias:true,
+powerPreference:"high-performance"
+});
 
-/* 터치 */
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
 
-start.addEventListener(
-    "touchstart",
-    startTrailer
+document.body.insertBefore(
+renderer.domElement,
+document.getElementById("ui")
 );
 
-
-/* 키보드 */
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.code === "Space" ||
-            event.code === "Enter"
-        ){
-
-            startTrailer();
-
-        }
-
-    }
+const ambient=new THREE.HemisphereLight(
+chapter===1?0xd7e0e5:0x9aa9b0,
+0x202020,
+chapter===1?1.8:1.25
 );
 
+scene.add(ambient);
+
+const sun=new THREE.DirectionalLight(
+0xffffff,
+chapter===1?1.4:.85
+);
+
+sun.position.set(-10,15,8);
+scene.add(sun);
+
+const floorMat=new THREE.MeshStandardMaterial({
+color:chapter===1?0x565b5e:0x41474a,
+roughness:1
+});
+
+const wallMat=new THREE.MeshStandardMaterial({
+color:chapter===1?0x737779:0x555c60,
+roughness:.9
+});
+
+const darkMat=new THREE.MeshStandardMaterial({
+color:chapter===1?0x25282a:0x171b1d,
+roughness:.8
+});
+
+const metalMat=new THREE.MeshStandardMaterial({
+color:chapter===1?0x50575a:0x41494d,
+metalness:.55,
+roughness:.4
+});
+
+const woodMat=new THREE.MeshStandardMaterial({
+color:0x654b31,
+roughness:.95
+});
+
+const glassMat=new THREE.MeshStandardMaterial({
+color:0x3c606a,
+transparent:true,
+opacity:.45
+});
+
+const clothMat=new THREE.MeshStandardMaterial({
+color:0x2e3940,
+roughness:1
+});
+
+const redMat=new THREE.MeshStandardMaterial({
+color:0x9f3835,
+roughness:.9
+});
+
+const whiteMat=new THREE.MeshStandardMaterial({
+color:0xd0cec3,
+roughness:.9
+});
+
+const armorMat=new THREE.MeshStandardMaterial({
+color:0x3d464b,
+metalness:.7,
+roughness:.35
+});
+
+const armorDark=new THREE.MeshStandardMaterial({
+color:0x171b1d,
+metalness:.6,
+roughness:.4
+});
+
+const yellowMat=new THREE.MeshStandardMaterial({
+color:0xb49b4b,
+roughness:.7
+});
+
+const solids=[];
+
+function box(x,y,z,w,h,d,mat,solid=true){
+const m=new THREE.Mesh(
+new THREE.BoxGeometry(w,h,d),
+mat
+);
+
+m.position.set(x,y,z);
+scene.add(m);
+
+if(solid){
+solids.push({x,y,z,w,h,d});
+}
+
+return m;
+}
+
+function ceilingLight(x,z,intensity=2.4){
+box(x,3.88,z,2.2,.08,.7,whiteMat,false);
+
+const l=new THREE.PointLight(
+0xffe6b4,
+intensity,
+8
+);
+
+l.position.set(x,3.5,z);
+scene.add(l);
+}
+
+function windowPanel(x,z){
+box(x,2.3,z,3.4,1.6,.12,glassMat,false);
+box(x-1.8,2.3,z,.12,1.9,.2,darkMat,false);
+box(x+1.8,2.3,z,.12,1.9,.2,darkMat,false);
+box(x,2.3,z,.08,1.7,.18,darkMat,false);
+}
+
+function desk(x,z){
+box(x,1.1,z,2.8,.18,1.2,woodMat);
+box(x-1.15,.55,z-.42,.14,1,.14,metalMat);
+box(x+1.15,.55,z-.42,.14,1,.14,metalMat);
+box(x-1.15,.55,z+.42,.14,1,.14,metalMat);
+box(x+1.15,.55,z+.42,.14,1,.14,metalMat);
+box(x,1.25,z-.57,2.2,.65,.06,darkMat,false);
+}
+
+function chair(x,z){
+box(x,.75,z,.7,.12,.7,clothMat);
+box(x,1.15,z+.28,.7,.8,.12,clothMat);
+}
+
+function cabinet(x,z){
+box(x,1.3,z,1.1,2.6,.65,metalMat);
+
+for(let y=.65;y<2.4;y+=.55){
+box(x,y,z-.34,.85,.035,.02,darkMat,false);
+}
+}
+
+function crate(x,z,s){
+box(x,s*.55,z,s,1.1,s,woodMat);
+box(x,s*1.1+.03,z,s,.06,s,darkMat,false);
+}
+
+function server(x,z){
+box(x,1.55,z,.95,3.1,1.1,darkMat);
+
+for(let y=.7;y<2.9;y+=.5){
+box(x,y,z-.56,.7,.07,.03,redMat,false);
+}
+}
+
+if(chapter===1){
+
+box(0,-.3,0,50,.6,40,floorMat,false);
+box(0,4,0,50,.2,40,darkMat,false);
+
+box(-24.5,2,0,1,4,40,wallMat);
+box(24.5,2,0,1,4,40,wallMat);
+box(0,2,-19.5,48,4,1,wallMat);
+box(0,2,19.5,48,4,1,wallMat);
+
+box(-15,2,-14,1,4,11,wallMat);
+box(-15,2,4,1,4,10,wallMat);
+box(-15,2,16,1,4,6,wallMat);
+
+box(15,2,-14,1,4,11,wallMat);
+box(15,2,4,1,4,10,wallMat);
+box(15,2,16,1,4,6,wallMat);
+
+box(-7,2,-5,1,4,10,wallMat);
+box(-7,2,10,1,4,7,wallMat);
+box(7,2,-5,1,4,10,wallMat);
+box(7,2,10,1,4,7,wallMat);
+
+box(-11,2,-10,7,4,1,wallMat);
+box(11,2,-10,7,4,1,wallMat);
+box(-11,2,6,7,4,1,wallMat);
+box(11,2,6,7,4,1,wallMat);
+box(-19,2,11,9,4,1,wallMat);
+box(19,2,11,9,4,1,wallMat);
+box(0,2,14,8,4,1,wallMat);
+
+ceilingLight(-19,-15);
+ceilingLight(19,-15);
+ceilingLight(-11,-4);
+ceilingLight(11,-4);
+ceilingLight(0,2);
+ceilingLight(-19,15);
+ceilingLight(19,15);
+ceilingLight(0,18);
+
+windowPanel(-20,-3);
+windowPanel(20,-3);
+windowPanel(-20,16);
+windowPanel(20,16);
+
+desk(-11,-14);
+chair(-11,-15.1);
+cabinet(-13.5,-12.8);
+cabinet(-9,-12.8);
+
+desk(11,-14);
+chair(11,-15.1);
+cabinet(13.5,-12.8);
+cabinet(9,-12.8);
+
+desk(-20,16);
+chair(-21.2,16);
+cabinet(-22.8,14);
+cabinet(-22.8,18);
+
+desk(20,16);
+chair(21.2,16);
+cabinet(22.8,14);
+cabinet(22.8,18);
+
+desk(0,9);
+chair(0,7.8);
+
+crate(-12,-7,1.4);
+crate(-12,-5,.9);
+crate(12,-7,1.3);
+crate(12,-4,.9);
+crate(-20,8,1.2);
+crate(-21,9.5,.8);
+crate(20,8,1.2);
+crate(21,9.5,.8);
+crate(-4,3,1);
+crate(4,3,1);
+
+server(-20,-15);
+server(-22,-15);
+server(20,-15);
+server(22,-15);
+
+box(0,2.1,14.38,4,2,.1,darkMat,false);
+
+}else{
+
+box(0,-.3,0,54,.6,44,floorMat,false);
+box(0,4,0,54,.2,44,darkMat,false);
+
+box(-26.5,2,0,1,4,44,wallMat);
+box(26.5,2,0,1,4,44,wallMat);
+box(0,2,-21.5,52,4,1,wallMat);
+box(0,2,21.5,52,4,1,wallMat);
+
+box(-17,2,-14,1,4,10,wallMat);
+box(-17,2,4,1,4,12,wallMat);
+box(-17,2,18,1,4,5,wallMat);
+
+box(17,2,-14,1,4,10,wallMat);
+box(17,2,4,1,4,12,wallMat);
+box(17,2,18,1,4,5,wallMat);
+
+box(-8,2,-7,1,4,9,wallMat);
+box(-8,2,8,1,4,10,wallMat);
+box(8,2,-7,1,4,9,wallMat);
+box(8,2,8,1,4,10,wallMat);
+
+box(-12,2,-12,8,4,1,wallMat);
+box(12,2,-12,8,4,1,wallMat);
+box(-12,2,5,8,4,1,wallMat);
+box(12,2,5,8,4,1,wallMat);
+box(-20,2,12,10,4,1,wallMat);
+box(20,2,12,10,4,1,wallMat);
+box(0,2,15,9,4,1,wallMat);
+
+ceilingLight(-21,-16,1.8);
+ceilingLight(21,-16,1.8);
+ceilingLight(-12,-3,1.5);
+ceilingLight(12,-3,1.5);
+ceilingLight(0,0,1.2);
+ceilingLight(-21,18,1.8);
+ceilingLight(21,18,1.8);
+ceilingLight(0,19,1.4);
+
+windowPanel(-22,-4);
+windowPanel(22,-4);
+windowPanel(-22,17);
+windowPanel(22,17);
+
+desk(-12,-16);
+desk(12,-16);
+desk(-21,17);
+desk(21,17);
+
+chair(-12,-17.2);
+chair(12,-17.2);
+chair(-22,17);
+chair(22,17);
+
+cabinet(-14,-14);
+cabinet(-10,-14);
+cabinet(14,-14);
+cabinet(10,-14);
+
+crate(-13,-7,1.5);
+crate(-11,-5,.9);
+crate(13,-7,1.4);
+crate(11,-4,1);
+crate(-21,8,1.3);
+crate(21,8,1.3);
+crate(-4,3,1.2);
+crate(4,3,1.2);
+crate(0,-3,.9);
+
+server(-22,-16);
+server(-24,-16);
+server(22,-16);
+server(24,-16);
+
+box(0,2.1,15.38,5,2,.1,darkMat,false);
+
+for(let x=-21;x<=21;x+=7){
+box(x,.08,-20.8,3,.05,.5,yellowMat,false);
+}
+
+}
+
+const targets=[];
+
+function mannequin(x,z,armored=false){
+const g=new THREE.Group();
+
+g.position.set(x,0,z);
+
+function part(geo,mat,px,py,pz){
+const m=new THREE.Mesh(geo,mat);
+m.position.set(px,py,pz);
+g.add(m);
+return m;
+}
+
+if(armored){
+
+part(
+new THREE.BoxGeometry(.72,1.2,.4),
+armorMat,
+0,1.15,0
+);
+
+part(
+new THREE.BoxGeometry(.53,.53,.53),
+armorDark,
+0,1.98,0
+);
+
+part(
+new THREE.BoxGeometry(.2,.9,.2),
+armorMat,
+-.48,1.2,0
+);
+
+part(
+new THREE.BoxGeometry(.2,.9,.2),
+armorMat,
+.48,1.2,0
+);
+
+part(
+new THREE.BoxGeometry(.24,.85,.25),
+armorDark,
+-.2,.43,0
+);
+
+part(
+new THREE.BoxGeometry(.24,.85,.25),
+armorDark,
+.2,.43,0
+);
+
+part(
+new THREE.BoxGeometry(.78,.22,.44),
+armorDark,
+0,1.42,-.02
+);
+
+}else{
+
+part(
+new THREE.BoxGeometry(.62,1.15,.36),
+redMat,
+0,1.15,0
+);
+
+part(
+new THREE.BoxGeometry(.48,.48,.48),
+whiteMat,
+0,1.95,0
+);
+
+part(
+new THREE.BoxGeometry(.2,.9,.2),
+redMat,
+-.45,1.2,0
+);
+
+part(
+new THREE.BoxGeometry(.2,.9,.2),
+redMat,
+.45,1.2,0
+);
+
+part(
+new THREE.BoxGeometry(.24,.85,.25),
+clothMat,
+-.18,.43,0
+);
+
+part(
+new THREE.BoxGeometry(.24,.85,.25),
+clothMat,
+.18,.43,0
+);
+}
+
+g.userData={
+alive:true,
+fall:false,
+time:0,
+vx:0,
+vz:0,
+armored,
+hp:armored?3:1,
+alert:false,
+lastEnemyShot:0
+};
+
+scene.add(g);
+targets.push(g);
+}
+
+if(chapter===1){
+
+mannequin(-12,-8,false);
+mannequin(-10,2,true);
+mannequin(-20,6,false);
+mannequin(12,-8,true);
+mannequin(10,2,false);
+mannequin(20,6,true);
+mannequin(-21,16.5,false);
+mannequin(21,16.5,true);
+mannequin(0,12,false);
+
+}else{
+
+mannequin(-13,-8,true);
+mannequin(-10,2,true);
+mannequin(-20,7,false);
+mannequin(13,-8,true);
+mannequin(10,2,false);
+mannequin(20,7,true);
+mannequin(-22,17,true);
+mannequin(22,17,false);
+mannequin(-3,11,true);
+mannequin(3,11,false);
+mannequin(0,-1,true);
+mannequin(0,18,false);
+mannequin(-22,1,false);
+mannequin(22,1,true);
+
+}
+
+const weapon=new THREE.Group();
+
+function weaponBox(geo,mat,x,y,z){
+const m=new THREE.Mesh(geo,mat);
+m.position.set(x,y,z);
+m.frustumCulled=false;
+weapon.add(m);
+return m;
+}
+
+const gunMat=new THREE.MeshBasicMaterial({
+color:0x17191b
+});
+
+const gunMetal=new THREE.MeshBasicMaterial({
+color:0x555d61
+});
+
+const gunDark=new THREE.MeshBasicMaterial({
+color:0x080909
+});
+
+const gunSkin=new THREE.MeshBasicMaterial({
+color:0xa66c47
+});
+
+weaponBox(
+new THREE.BoxGeometry(.5,.3,1.55),
+gunMat,
+0,0,0
+);
+
+weaponBox(
+new THREE.BoxGeometry(.3,.16,1.75),
+gunMetal,
+0,.19,-.1
+);
+
+weaponBox(
+new THREE.BoxGeometry(.12,.12,1.4),
+gunDark,
+0,.18,-1.4
+);
+
+const barrel=weaponBox(
+new THREE.CylinderGeometry(.075,.075,1.5,12),
+gunMetal,
+0,.19,-1.65
+);
+
+barrel.rotation.x=Math.PI/2;
+
+weaponBox(
+new THREE.CylinderGeometry(.11,.1,.22,12),
+gunDark,
+0,.19,-2.38
+);
+
+weaponBox(
+new THREE.BoxGeometry(.35,.3,.7),
+gunMat,
+0,.02,.95
+);
+
+const mag=weaponBox(
+new THREE.BoxGeometry(.23,.62,.38),
+gunMetal,
+0,-.38,.25
+);
+
+mag.rotation.x=-.12;
+
+weaponBox(
+new THREE.BoxGeometry(.07,.2,.07),
+gunMetal,
+0,.34,-2.03
+);
+
+weaponBox(
+new THREE.BoxGeometry(.18,.18,.07),
+gunMetal,
+0,.34,.3
+);
+
+weaponBox(
+new THREE.BoxGeometry(.3,.85,.28),
+new THREE.MeshBasicMaterial({color:0x2e3940}),
+.29,-.38,-.18
+);
+
+weaponBox(
+new THREE.BoxGeometry(.31,.28,.32),
+gunSkin,
+.06,-.3,-.27
+);
+
+weaponBox(
+new THREE.BoxGeometry(.29,.95,.28),
+new THREE.MeshBasicMaterial({color:0x2e3940}),
+-.24,-.38,-.9
+);
+
+weaponBox(
+new THREE.BoxGeometry(.31,.28,.33),
+gunSkin,
+-.03,-.29,-.96
+);
+
+weapon.position.set(.58,-.43,-.85);
+weapon.rotation.set(0,-.08,0);
+
+camera.add(weapon);
+scene.add(camera);
+
+const player={
+x:0,
+y:1.65,
+z:chapter===1?17.8:19.5,
+yaw:0,
+pitch:0,
+vy:0,
+ground:true,
+speed:4.5,
+radius:.4
+};
+
+let aiming=false;
+let ammo=30;
+let reserve=180;
+let firing=false;
+let reloading=false;
+let reloadStart=0;
+let recoil=0;
+let recoilPitch=0;
+let lastShot=0;
+let hp=100;
+let kills=0;
+let normalKills=0;
+let armorKills=0;
+let firstHit=false;
+let chapterFinished=false;
+let lastRegen=performance.now();
+
+const keys={
+up:false,
+down:false,
+left:false,
+right:false
+};
+
+document.getElementById("mission").innerHTML=
+"CHAPTER "+chapter+
+"<br>"+
+(chapter===1?"OPERATION BUILDING":"NIGHT SHIFT");
+
+function collision(x,z){
+const feet=player.y-1.65;
+const head=feet+1.7;
+
+for(const b of solids){
+
+if(
+Math.abs(x-b.x)<b.w/2+player.radius&&
+Math.abs(z-b.z)<b.d/2+player.radius
+){
+
+if(
+head>b.y-b.h/2&&
+feet<b.y+b.h/2
+){
+return true;
+}
+
+}
+}
+
+return false;
+}
+
+function move(dt){
+let f=0;
+let s=0;
+
+if(keys.up)f++;
+if(keys.down)f--;
+if(keys.left)s--;
+if(keys.right)s++;
+
+if(!f&&!s)return;
+
+const len=Math.hypot(f,s);
+
+f/=len;
+s/=len;
+
+const speed=player.speed*(aiming?.62:1);
+
+const fx=-Math.sin(player.yaw);
+const fz=-Math.cos(player.yaw);
+
+const rx=Math.cos(player.yaw);
+const rz=-Math.sin(player.yaw);
+
+const dx=(fx*f+rx*s)*speed*dt;
+const dz=(fz*f+rz*s)*speed*dt;
+
+if(!collision(player.x+dx,player.z)){
+player.x+=dx;
+}
+
+if(!collision(player.x,player.z+dz)){
+player.z+=dz;
+}
+
+player.x=Math.max(-25.7,Math.min(25.7,player.x));
+player.z=Math.max(-20.7,Math.min(20.7,player.z));
+}
+
+function jump(){
+if(player.ground&&!reloading){
+player.vy=6.3;
+player.ground=false;
+}
+}
+
+function physics(dt){
+player.vy-=18*dt;
+player.y+=player.vy*dt;
+
+if(player.y<=1.65){
+player.y=1.65;
+player.vy=0;
+player.ground=true;
+}
+}
+
+function updateHP(dt){
+const now=performance.now();
+
+if(now-lastRegen>=2000){
+
+const ticks=Math.floor(
+(now-lastRegen)/2000
+);
+
+hp=Math.min(
+100,
+hp+ticks
+);
+
+lastRegen+=ticks*2000;
+
+updateHPUI();
+}
+}
+
+function updateHPUI(){
+document.getElementById("hp").textContent="HP "+hp;
+document.getElementById("hpfill").style.width=hp+"%";
+}
+
+function damagePlayer(amount){
+if(chapterFinished)return;
+
+hp=Math.max(0,hp-amount);
+
+lastRegen=performance.now();
+
+const d=document.getElementById("damage");
+
+d.style.opacity="1";
+
+setTimeout(()=>{
+d.style.opacity="0";
+},120);
+
+updateHPUI();
+
+if(hp<=0){
+chapterFinished=true;
+document.getElementById("gameover").style.display="flex";
+}
+}
+
+function updateWeapon(){
+
+const targetX=aiming?.06:.58;
+const targetY=aiming?-.19:-.43;
+const targetZ=aiming?-.48:-.85;
+
+weapon.position.x+=
+(targetX-weapon.position.x)*.13;
+
+weapon.position.y+=
+(targetY-weapon.position.y)*.13;
+
+weapon.position.z+=
+(targetZ-weapon.position.z)*.13;
+
+const targetRotY=aiming?0:-.08;
+
+weapon.rotation.y+=
+(targetRotY-weapon.rotation.y)*.13;
+
+const targetRotZ=aiming?0:0;
+
+weapon.rotation.z+=
+(targetRotZ-weapon.rotation.z)*.13;
+
+weapon.rotation.x=-recoil;
+
+recoil*=.78;
+recoilPitch*=.78;
+
+if(reloading){
+
+const t=Math.min(
+1,
+(performance.now()-reloadStart)/1500
+);
+
+weapon.position.y+=
+Math.sin(t*Math.PI)*.18;
+
+weapon.position.z+=
+Math.sin(t*Math.PI)*.15;
+
+weapon.rotation.z=
+Math.sin(t*Math.PI)*.42;
+
+if(t>=1){
+
+const load=Math.min(
+30-ammo,
+reserve
+);
+
+ammo+=load;
+reserve-=load;
+reloading=false;
+
+weapon.rotation.z=0;
+
+unlock("reload");
+}
+}
+}
+
+function updateCamera(){
+
+camera.position.set(
+player.x,
+player.y,
+player.z
+);
+
+camera.rotation.order="YXZ";
+
+camera.rotation.y=player.yaw;
+
+camera.rotation.x=
+player.pitch-recoilPitch;
+}
+
+const tracers=[];
+
+function createTracer(start,end,enemy=false){
+
+const direction=end.clone().sub(start);
+const distance=direction.length();
+
+if(distance<=.01)return;
+
+direction.normalize();
+
+const mesh=new THREE.Mesh(
+new THREE.CylinderGeometry(
+enemy?.018:.022,
+enemy?.018:.022,
+.5,
+6
+),
+new THREE.MeshBasicMaterial({
+color:enemy?0xff5947:0xffdf65
+})
+);
+
+mesh.quaternion.setFromUnitVectors(
+new THREE.Vector3(0,1,0),
+direction
+);
+
+scene.add(mesh);
+
+tracers.push({
+mesh,
+start:start.clone(),
+end:end.clone(),
+direction:direction.clone(),
+distance,
+progress:0,
+speed:enemy?45:120
+});
+}
+
+function updateTracers(dt){
+
+for(let i=tracers.length-1;i>=0;i--){
+
+const t=tracers[i];
+
+t.progress+=t.speed*dt;
+
+const head=Math.min(
+t.progress,
+t.distance
+);
+
+const center=t.start.clone().add(
+t.direction.clone().multiplyScalar(head)
+);
+
+t.mesh.position.copy(center);
+
+if(t.progress>=t.distance){
+
+scene.remove(t.mesh);
+tracers.splice(i,1);
+}
+}
+}
+
+function flashHit(){
+
+const h=document.getElementById("hit");
+
+h.style.opacity="1";
+
+setTimeout(()=>{
+h.style.opacity="0";
+},100);
+}
+
+function knockTarget(t){
+
+if(!t.userData.alive)return;
+
+t.userData.alive=false;
+t.userData.fall=true;
+t.userData.time=0;
+
+const dx=t.position.x-player.x;
+const dz=t.position.z-player.z;
+
+const len=Math.hypot(dx,dz)||1;
+
+t.userData.vx=dx/len*2;
+t.userData.vz=dz/len*2;
+
+kills++;
+
+if(t.userData.armored){
+armorKills++;
+}else{
+normalKills++;
+}
+
+if(kills>=5){
+unlock("fivekills");
+}
+
+if(t.userData.armored){
+unlock("armorkill");
+}
+
+checkMissionComplete();
+}
+
+function checkMissionComplete(){
+
+if(kills!==targets.length)return;
+if(chapterFinished)return;
+
+chapterFinished=true;
+
+if(hp===100){
+unlock("perfect");
+}
+
+if(chapter===1){
+
+unlock("chapter1");
+
+const data=getData();
+
+if(!data.chapter2){
+data.chapter2=true;
+saveData(data);
+showToast("🔓 CHAPTER 2 해금!");
+}
+
+}else{
+
+unlock("chapter2");
+}
+
+const earned=
+normalKills*100+
+armorKills*300;
+
+const data=getData();
+
+data.money+=earned;
+
+saveData(data);
+
+setTimeout(()=>{
+
+document.getElementById("resultChapter").textContent=
+"CHAPTER "+chapter+" 완료";
+
+document.getElementById("normalResult").textContent=
+normalKills+" × ₩100 = ₩"+(normalKills*100);
+
+document.getElementById("armorResult").textContent=
+armorKills+" × ₩300 = ₩"+(armorKills*300);
+
+document.getElementById("earnedResult").textContent=
+"₩"+earned;
+
+document.getElementById("totalResult").textContent=
+"₩"+data.money;
+
+document.getElementById("result").style.display="flex";
+
+},650);
+}
+
+function damageTarget(t){
+
+if(!t.userData.alive)return false;
+
+if(t.userData.armored){
+
+t.userData.hp--;
+
+if(t.userData.hp<=0){
+
+knockTarget(t);
+return true;
+}
+
+flashHit();
+
+return false;
+}
+
+knockTarget(t);
+
+return true;
+}
+
+function hasLineOfSight(target){
+
+const origin=new THREE.Vector3(
+player.x,
+1.65,
+player.z
+);
+
+const targetPoint=target.position.clone();
+
+targetPoint.y+=1.35;
+
+const direction=
+targetPoint.clone().sub(origin);
+
+const distance=direction.length();
+
+direction.normalize();
+
+const ray=new THREE.Raycaster(
+origin,
+direction,
+0,
+distance
+);
+
+const objects=[];
+
+scene.traverse(o=>{
+
+if(
+o.isMesh&&
+!weapon.getObjectById(o.id)&&
+!targets.some(t=>t===o.parent)
+){
+objects.push(o);
+}
+
+});
+
+const hits=
+ray.intersectObjects(objects,true);
+
+return hits.length===0;
+}
+
+function updateEnemyAI(t,dt){
+
+if(!t.userData.armored)return;
+if(!t.userData.alive)return;
+
+const dx=player.x-t.position.x;
+const dz=player.z-t.position.z;
+
+const distance=Math.hypot(dx,dz);
+
+if(distance>25)return;
+
+const angle=Math.atan2(dx,dz);
+
+let diff=angle-t.rotation.y;
+
+while(diff>Math.PI)diff-=Math.PI*2;
+while(diff<-Math.PI)diff+=Math.PI*2;
+
+const fov=Math.PI*.65;
+
+if(Math.abs(diff)>fov)return;
+
+t.userData.alert=true;
+
+let targetRotation=angle;
+
+while(targetRotation-t.rotation.y>Math.PI){
+targetRotation-=Math.PI*2;
+}
+
+while(targetRotation-t.rotation.y<-Math.PI){
+targetRotation+=Math.PI*2;
+}
+
+t.rotation.y+=
+(targetRotation-t.rotation.y)*
+Math.min(1,dt*5);
+
+if(!hasLineOfSight(t))return;
+
+const now=performance.now();
+
+if(now-t.userData.lastEnemyShot>=2000){
+
+t.userData.lastEnemyShot=now;
+
+enemyShoot(t);
+}
+}
+
+function enemyShoot(t){
+
+const start=t.position.clone();
+
+start.y=1.55;
+
+const end=new THREE.Vector3(
+player.x,
+player.y,
+player.z
+);
+
+createTracer(
+start,
+end,
+true
+);
+
+damagePlayer(5);
+
+playEnemySound();
+}
+
+function updateTargets(dt){
+
+for(const t of targets){
+
+if(t.userData.fall){
+
+t.userData.time+=dt;
+
+t.position.x+=
+t.userData.vx*dt;
+
+t.position.z+=
+t.userData.vz*dt;
+
+t.userData.vx*=.9;
+t.userData.vz*=.9;
+
+t.rotation.x=
+Math.min(
+Math.PI/2,
+t.userData.time*5
+);
+
+continue;
+}
+
+if(!t.userData.alive)continue;
+
+updateEnemyAI(t,dt);
+}
+}
+
+function shoot(){
+
+if(reloading)return;
+if(chapterFinished)return;
+
+const now=performance.now();
+
+if(now-lastShot<180)return;
+
+if(ammo<=0){
+
+reload();
+return;
+}
+
+lastShot=now;
+
+const lastBullet=
+ammo===1;
+
+ammo--;
+
+unlock("firstshot");
+
+recoil=.09;
+recoilPitch=.035;
+
+playSound();
+
+camera.updateMatrixWorld(true);
+
+const origin=
+camera.getWorldPosition(
+new THREE.Vector3()
+);
+
+const direction=
+new THREE.Vector3(0,0,-1);
+
+direction.applyQuaternion(
+camera.getWorldQuaternion(
+new THREE.Quaternion()
+)
+);
+
+direction.normalize();
+
+const ray=new THREE.Raycaster(
+origin,
+direction,
+0,
+70
+);
+
+const objects=[];
+
+scene.traverse(o=>{
+
+if(
+o.isMesh&&
+!weapon.getObjectById(o.id)
+){
+objects.push(o);
+}
+
+});
+
+const hits=
+ray.intersectObjects(
+objects,
+true
+);
+
+let end=origin.clone().add(
+direction.clone().multiplyScalar(55)
+);
+
+let killed=false;
+let hitEnemy=false;
+
+if(hits.length){
+
+end=hits[0].point.clone();
+
+let obj=hits[0].object;
+
+while(
+obj&&
+obj!==scene&&
+(!obj.userData||
+obj.userData.alive===undefined)
+){
+obj=obj.parent;
+}
+
+if(
+obj&&
+obj.userData&&
+obj.userData.alive
+){
+
+hitEnemy=true;
+
+if(!firstHit){
+
+firstHit=true;
+
+unlock("firsthit");
+}
+
+killed=damageTarget(obj);
+
+if(killed&&lastBullet){
+unlock("lastbullet");
+}
+}
+}
+
+const muzzle=new THREE.Vector3(
+0,
+.19,
+-2.38
+);
+
+muzzle.applyMatrix4(
+weapon.matrixWorld
+);
+
+createTracer(
+muzzle,
+end,
+false
+);
+
+if(hitEnemy){
+flashHit();
+}
+
+document.getElementById("ammo").textContent=
+ammo+" / "+reserve;
+}
+
+function reload(){
+
+if(reloading)return;
+if(ammo>=30)return;
+if(reserve<=0)return;
+
+reloading=true;
+reloadStart=performance.now();
+}
+
+let audio=null;
+
+function getAudio(){
+
+try{
+
+if(!audio){
+
+audio=new(
+window.AudioContext||
+window.webkitAudioContext
+)();
+}
+
+if(audio.state==="suspended"){
+audio.resume();
+}
+
+return audio;
+
+}catch(e){
+
+return null;
+}
+}
+
+function playSound(){
+
+const a=getAudio();
+
+if(!a)return;
+
+const t=a.currentTime;
+
+const osc=a.createOscillator();
+const gain=a.createGain();
+
+osc.type="square";
+
+osc.frequency.setValueAtTime(
+190,
+t
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+75,
+t+.11
+);
+
+gain.gain.setValueAtTime(
+.16,
+t
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.001,
+t+.13
+);
+
+osc.connect(gain);
+gain.connect(a.destination);
+
+osc.start(t);
+osc.stop(t+.14);
+}
+
+function playEnemySound(){
+
+const a=getAudio();
+
+if(!a)return;
+
+const t=a.currentTime;
+
+const osc=a.createOscillator();
+const gain=a.createGain();
+
+osc.type="square";
+
+osc.frequency.setValueAtTime(
+150,
+t
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+60,
+t+.1
+);
+
+gain.gain.setValueAtTime(
+.09,
+t
+);
+
+gain.gain.exponentialRampToValueAtTime(
+.001,
+t+.11
+);
+
+osc.connect(gain);
+gain.connect(a.destination);
+
+osc.start(t);
+osc.stop(t+.12);
+}
+
+function hold(id,key){
+
+const b=document.getElementById(id);
+
+b.addEventListener("pointerdown",e=>{
+e.preventDefault();
+e.stopPropagation();
+keys[key]=true;
+});
+
+b.addEventListener("pointerup",e=>{
+e.preventDefault();
+e.stopPropagation();
+keys[key]=false;
+});
+
+b.addEventListener("pointercancel",()=>{
+keys[key]=false;
+});
+
+b.addEventListener("pointerleave",()=>{
+keys[key]=false;
+});
+}
+
+hold("up","up");
+hold("down","down");
+hold("left","left");
+hold("right","right");
+
+document.getElementById("jump")
+.addEventListener("pointerdown",e=>{
+e.preventDefault();
+e.stopPropagation();
+jump();
+});
+
+document.getElementById("reload")
+.addEventListener("pointerdown",e=>{
+e.preventDefault();
+e.stopPropagation();
+reload();
+});
+
+document.getElementById("aim")
+.addEventListener("pointerdown",e=>{
+
+e.preventDefault();
+e.stopPropagation();
+
+if(reloading)return;
+
+aiming=!aiming;
+
+document.getElementById("aim").textContent=
+aiming?"AIM ON":"AIM";
+
+document.getElementById("state").textContent=
+aiming?"AIM ON":"AIM OFF";
+
+document.getElementById("cross").style.transform=
+aiming?
+"translate(-50%,-50%) scale(.86)":
+"translate(-50%,-50%) scale(1)";
+});
+
+document.getElementById("fire")
+.addEventListener("pointerdown",e=>{
+
+e.preventDefault();
+e.stopPropagation();
+
+firing=true;
+
+shoot();
+});
+
+document.getElementById("fire")
+.addEventListener("pointerup",()=>{
+firing=false;
+});
+
+document.getElementById("fire")
+.addEventListener("pointercancel",()=>{
+firing=false;
+});
+
+let look=false;
+let lastX=0;
+let lastY=0;
+
+renderer.domElement.addEventListener(
+"pointerdown",
+e=>{
+
+look=true;
+
+lastX=e.clientX;
+lastY=e.clientY;
+
+if(renderer.domElement.setPointerCapture){
+renderer.domElement.setPointerCapture(
+e.pointerId
+);
+}
+}
+);
+
+renderer.domElement.addEventListener(
+"pointermove",
+e=>{
+
+if(!look)return;
+
+const dx=e.clientX-lastX;
+const dy=e.clientY-lastY;
+
+lastX=e.clientX;
+lastY=e.clientY;
+
+player.yaw-=dx*.004;
+player.pitch-=dy*.003;
+
+player.pitch=Math.max(
+-1.3,
+Math.min(1.3,player.pitch)
+);
+}
+);
+
+renderer.domElement.addEventListener(
+"pointerup",
+()=>{
+look=false;
+}
+);
+
+renderer.domElement.addEventListener(
+"pointercancel",
+()=>{
+look=false;
+}
+);
+
+window.addEventListener("keydown",e=>{
+
+if(e.code==="KeyW"||e.code==="ArrowUp")
+keys.up=true;
+
+if(e.code==="KeyS"||e.code==="ArrowDown")
+keys.down=true;
+
+if(e.code==="KeyA"||e.code==="ArrowLeft")
+keys.left=true;
+
+if(e.code==="KeyD"||e.code==="ArrowRight")
+keys.right=true;
+
+if(e.code==="Space")
+jump();
+
+if(e.code==="KeyR")
+reload();
+});
+
+window.addEventListener("keyup",e=>{
+
+if(e.code==="KeyW"||e.code==="ArrowUp")
+keys.up=false;
+
+if(e.code==="KeyS"||e.code==="ArrowDown")
+keys.down=false;
+
+if(e.code==="KeyA"||e.code==="ArrowLeft")
+keys.left=false;
+
+if(e.code==="KeyD"||e.code==="ArrowRight")
+keys.right=false;
+});
+
+window.addEventListener("resize",()=>{
+
+camera.aspect=
+innerWidth/innerHeight;
+
+camera.updateProjectionMatrix();
+
+renderer.setSize(
+innerWidth,
+innerHeight
+);
+});
+
+let previous=performance.now();
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+const now=performance.now();
+
+const dt=Math.min(
+.033,
+(now-previous)/1000
+);
+
+previous=now;
+
+if(!chapterFinished){
+
+move(dt);
+physics(dt);
+updateHP(dt);
+updateTargets(dt);
+updateTracers(dt);
+updateWeapon();
+updateCamera();
+}
+
+if(firing){
+shoot();
+}
+
+document.getElementById("ammo").textContent=
+ammo+" / "+reserve;
+
+renderer.render(
+scene,
+camera
+);
+}
+
+updateHPUI();
+updateCamera();
+animate();
+}
 </script>
-
 </body>
 </html>
